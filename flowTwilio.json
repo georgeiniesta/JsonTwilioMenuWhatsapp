@@ -1,0 +1,694 @@
+{
+    "description": "A New Flow",
+    "states": [
+      {
+        "name": "Trigger",
+        "type": "trigger",
+        "transitions": [
+          {
+            "next": "set_variables_Pedido",
+            "event": "incomingMessage"
+          },
+          {
+            "event": "incomingCall"
+          },
+          {
+            "next": "set_variables_Pedido",
+            "event": "incomingConversationMessage"
+          },
+          {
+            "event": "incomingRequest"
+          },
+          {
+            "event": "incomingParent"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      },
+      {
+        "name": "Main_Menu",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "split_MainMenu",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "GoodbyeMessage",
+            "event": "timeout"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 270,
+            "y": 440
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Hola! Bienvenido a Restaurante México. Por favor proporciona el NUMERO de la opción deseada: 1. Iniciar Pedido, 2 Consulta de Menú, 3. Estatus de mi Pedido. 4. Facturación, 5. Buzón de quejas y comentarios, 6. Finalizar conversación",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "ErrorSendingMessage",
+        "type": "send-message",
+        "transitions": [
+          {
+            "event": "sent"
+          },
+          {
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1430,
+            "y": 1100
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Lo sentimos, estamos experimentando problemas en la plataforma. Por favor intente más tarde"
+        }
+      },
+      {
+        "name": "GoodbyeMessage",
+        "type": "send-message",
+        "transitions": [
+          {
+            "event": "sent"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1100,
+            "y": 1250
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Gracias por comunicarse con nosotros. Por favor vuelva pronto."
+        }
+      },
+      {
+        "name": "split_MainMenu",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "NoConditionMatch",
+            "event": "noMatch"
+          },
+          {
+            "next": "send_message_1",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 1",
+                "arguments": [
+                  "{{widgets.Main_Menu.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "1"
+              }
+            ]
+          },
+          {
+            "next": "send_Opcion2",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 2",
+                "arguments": [
+                  "{{widgets.Main_Menu.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "2"
+              }
+            ]
+          },
+          {
+            "next": "send_message_3Opcion",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 3",
+                "arguments": [
+                  "{{widgets.Main_Menu.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "3"
+              }
+            ]
+          },
+          {
+            "next": "send_and_reply_Opcion4_Facturacion",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 4",
+                "arguments": [
+                  "{{widgets.Main_Menu.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "4"
+              }
+            ]
+          },
+          {
+            "next": "send_and_reply_Opcion5",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 5",
+                "arguments": [
+                  "{{widgets.Main_Menu.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "5"
+              }
+            ]
+          },
+          {
+            "next": "GoodbyeMessage",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 6",
+                "arguments": [
+                  "{{widgets.Main_Menu.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "input": "{{widgets.Main_Menu.inbound.Body}}",
+          "offset": {
+            "x": 140,
+            "y": 800
+          }
+        }
+      },
+      {
+        "name": "NoConditionMatch",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "split_NoCondMatch",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "GoodbyeMessage",
+            "event": "timeout"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -330,
+            "y": 1070
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Lo sentimos. Ingresaste una opción no válida. ¿Quieres intentar de nuevo? 1 para SI. 2 para NO.",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "split_NoCondMatch",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "NoConditionMatch",
+            "event": "noMatch"
+          },
+          {
+            "next": "Main_Menu",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 1",
+                "arguments": [
+                  "{{widgets.NoConditionMatch.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "1"
+              }
+            ]
+          },
+          {
+            "next": "GoodbyeMessage",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 2",
+                "arguments": [
+                  "{{widgets.NoConditionMatch.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "input": "{{widgets.NoConditionMatch.inbound.Body}}",
+          "offset": {
+            "x": -630,
+            "y": 1330
+          }
+        }
+      },
+      {
+        "name": "VolvermenuPrincipal",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "split_VolverMainMenu",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "GoodbyeMessage",
+            "event": "timeout"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 290,
+            "y": 1920
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "¿Deseas volver al menú principal? 1. SI, 2. NO, terminar conversación",
+          "timeout": "6000"
+        }
+      },
+      {
+        "name": "split_VolverMainMenu",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "NoConditionMatch",
+            "event": "noMatch"
+          },
+          {
+            "next": "Main_Menu",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 1",
+                "arguments": [
+                  "{{widgets.VolvermenuPrincipal.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "1"
+              }
+            ]
+          },
+          {
+            "next": "GoodbyeMessage",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to 2",
+                "arguments": [
+                  "{{widgets.VolvermenuPrincipal.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "input": "{{widgets.VolvermenuPrincipal.inbound.Body}}",
+          "offset": {
+            "x": 290,
+            "y": 2430
+          }
+        }
+      },
+      {
+        "name": "send_Opcion2",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "timeout"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 270,
+            "y": 1460
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Por favor ingresa al link para visualizar nuestro menú\nhttps://georgeiniesta.github.io/HTMLRestaurantMenu/",
+          "media_url": "",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "send_and_reply_Opcion5",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "timeout"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1070,
+            "y": 1550
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Gracias por querer mejorar nuestra calidad de servicio. Por favor ingresa al link: https://georgeiniesta.github.io/HTMLRestaurantMenu/comments",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "send_and_reply_Opcion4_Facturacion",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "timeout"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1350,
+            "y": 1830
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Por favor ingrese a este link para darse de alta y/o generar su factura:\nhttps://georgeiniesta.github.io/HTMLRestaurantMenu/facturacion",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "send_and_reply_3OpcionEstatus",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "split_Opcion3",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "timeout"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 770,
+            "y": 1460
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Hola! Por favor envia tu numero de orden. Recuerda que las ordenes ya cmpletadas en mas de 24 horas no se tomaran en cuenta para esta consulta.",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "send_message_3Opcion",
+        "type": "send-message",
+        "transitions": [
+          {
+            "next": "send_and_reply_3OpcionEstatus",
+            "event": "sent"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 690,
+            "y": 1160
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Para ver mi historial de pedidos por favor ingresa al link:\nhttps://georgeiniesta.github.io/HTMLRestaurantMenu/orderstatus"
+        }
+      },
+      {
+        "name": "split_Opcion3",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "NoConditionMatch",
+            "event": "noMatch"
+          },
+          {
+            "next": "send_message_pedidoactual",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to {{widgets.set_variables_Pedido.908060}}",
+                "arguments": [
+                  "{{widgets.send_and_reply_3OpcionEstatus.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "{{widgets.set_variables_Pedido.908060}}"
+              }
+            ]
+          },
+          {
+            "next": "Copy_of_send_message_pedidoactual",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to {{widgets.set_variables_Pedido.908070}}",
+                "arguments": [
+                  "{{widgets.send_and_reply_3OpcionEstatus.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "{{widgets.set_variables_Pedido.908070}}"
+              }
+            ]
+          },
+          {
+            "next": "Copy_of_Copy_of_send_message_pedidoactual",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to {{widgets.set_variables_Pedido.367820}}",
+                "arguments": [
+                  "{{widgets.send_and_reply_3OpcionEstatus.inbound.Body}}"
+                ],
+                "type": "equal_to",
+                "value": "{{widgets.set_variables_Pedido.367820}}"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "input": "{{widgets.send_and_reply_3OpcionEstatus.inbound.Body}}",
+          "offset": {
+            "x": 940,
+            "y": 2040
+          }
+        }
+      },
+      {
+        "name": "set_variables_Pedido",
+        "type": "set-variables",
+        "transitions": [
+          {
+            "next": "Main_Menu",
+            "event": "next"
+          }
+        ],
+        "properties": {
+          "variables": [
+            {
+              "value": "Tiempo estimado: 30 minutos",
+              "key": "908060"
+            },
+            {
+              "value": "Entregada",
+              "key": "367820"
+            },
+            {
+              "value": "Entregada",
+              "key": "908070"
+            }
+          ],
+          "offset": {
+            "x": 250,
+            "y": 200
+          }
+        }
+      },
+      {
+        "name": "send_message_pedidoactual",
+        "type": "send-message",
+        "transitions": [
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "sent"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1100,
+            "y": 2420
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Tu pedido presenta un estatus de: {{widgets.set_variables_Pedido.908060}}"
+        }
+      },
+      {
+        "name": "Copy_of_send_message_pedidoactual",
+        "type": "send-message",
+        "transitions": [
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "sent"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1450,
+            "y": 2420
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Tu pedido presenta un estatus de: {{widgets.set_variables_Pedido.908070}}"
+        }
+      },
+      {
+        "name": "Copy_of_Copy_of_send_message_pedidoactual",
+        "type": "send-message",
+        "transitions": [
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "sent"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1800,
+            "y": 2420
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Tu pedido presenta un estatus de: {{widgets.set_variables_Pedido.367820}}"
+        }
+      },
+      {
+        "name": "send_message_1",
+        "type": "send-message",
+        "transitions": [
+          {
+            "next": "VolvermenuPrincipal",
+            "event": "sent"
+          },
+          {
+            "next": "ErrorSendingMessage",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 90,
+            "y": 1170
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Por favor ingresa al siguiente link para realizar tu pedido:\nhttps://georgeiniesta.github.io/HTMLRestaurantMenu/pedidoconfirmacion.html"
+        }
+      }
+    ],
+    "initial_state": "Trigger",
+    "flags": {
+      "allow_concurrent_calls": true
+    }
+  }
